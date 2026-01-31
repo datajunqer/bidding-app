@@ -15,6 +15,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const isProd = process.env.NODE_ENV === "production";
 
 const app = express();
 
@@ -120,9 +121,11 @@ app.post("/auth/logout", (req, res) => {
     if (sid) sessions.delete(sid);
 
     res.clearCookie("sid", {
+        httpOnly: true,
         sameSite: isProd ? "none" : "lax",
         secure: isProd
     });
+    return res.json({ ok: true });
 });
 
 app.get("/auth/me", (req, res) => {
