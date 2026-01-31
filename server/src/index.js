@@ -104,10 +104,12 @@ app.post("/auth/login", async (req, res) => {
     const sid = randomUUID();
     sessions.set(sid, { userId });
 
+    const isProd = process.env.NODE_ENV === "production";
+
     res.cookie("sid", sid, {
         httpOnly: true,
-        sameSite: "lax"
-        // secure: true // enable in HTTPS production
+        sameSite: isProd ? "none" : "lax",
+        secure: isProd // true on Render (https), false locally
     });
 
     return res.json({ ok: true, userId });
@@ -117,8 +119,10 @@ app.post("/auth/logout", (req, res) => {
     const sid = getSid(req);
     if (sid) sessions.delete(sid);
 
-    res.clearCookie("sid", { sameSite: "lax" });
-    return res.json({ ok: true });
+    res.clearCookie("sid", {
+        sameSite: isProd ? "none" : "lax",
+        secure: isProd
+    });
 });
 
 app.get("/auth/me", (req, res) => {
