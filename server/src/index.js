@@ -23,13 +23,25 @@ app.use("/images", express.static(path.join(__dirname, "images")));
 
 // (optional) quick debug route to confirm the folder path
 app.get("/__debug_images", (req, res) => {
-  res.json({ imagesDir: path.join(__dirname, "images") });
+    res.json({ imagesDir: path.join(__dirname, "images") });
 });
 
+
+// https://bidding-app-web-nhr9.onrender.com
 /* ---------------- CORS ---------------- */
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://bidding-app-web-nhr9.onrender.com" // <-- replace with your real Render frontend URL
+];
+
 app.use(
     cors({
-        origin: "http://localhost:5173",
+        origin: (origin, cb) => {
+            // allow non-browser clients (no origin) and allowed origins
+            if (!origin) return cb(null, true);
+            if (allowedOrigins.includes(origin)) return cb(null, true);
+            return cb(new Error("Not allowed by CORS"));
+        },
         credentials: true
     })
 );
@@ -137,7 +149,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: allowedOrigins,
         credentials: true
     }
 });
@@ -206,5 +218,5 @@ io.on("connection", (socket) => {
 const PORT = process.env.PORT || 4000;
 
 server.listen(PORT, () => {
-  console.log(`Backend running on port ${PORT}`);
+    console.log(`Backend running on port ${PORT}`);
 });
