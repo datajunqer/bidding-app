@@ -5,7 +5,7 @@ const API = import.meta.env.VITE_API_BASE;
  */
 async function jsonFetch(url, options = {}) {
     const res = await fetch(url, {
-        credentials: "include", // 🔴 REQUIRED for cookies
+        credentials: "include", // REQUIRED for cookies
         headers: {
             "Content-Type": "application/json",
             ...(options.headers || {})

@@ -15,14 +15,18 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const isProd = process.env.NODE_ENV === "production";
+
 
 const app = express();
+
+app.set("trust proxy", 1);
+
+const isProd = process.env.NODE_ENV === "production";
 
 // serve images statically 
 app.use("/images", express.static(path.join(__dirname, "images")));
 
-// (optional) quick debug route to confirm the folder path
+// quick debug route to confirm the folder path
 app.get("/__debug_images", (req, res) => {
     res.json({ imagesDir: path.join(__dirname, "images") });
 });
@@ -32,8 +36,9 @@ app.get("/__debug_images", (req, res) => {
 /* ---------------- CORS ---------------- */
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://bidding-app-web-nhr9.onrender.com" // <-- replace with your real Render frontend URL
-];
+    // "https://bidding-app-web-nhr9.onrender.com" 
+    process.env.FRONTEND_ORIGIN,
+].filter(Boolean);
 
 app.use(
     cors({
